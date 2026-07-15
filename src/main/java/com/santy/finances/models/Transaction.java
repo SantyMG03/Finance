@@ -2,11 +2,14 @@ package com.santy.finances.models;
 
 import com.santy.finances.models.enums.TransactionType;
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Data
 @Entity
+@Table(name = "Transaction")
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
