@@ -26,7 +26,7 @@ public class Transaction {
     private TransactionType type;
 
     @Column(nullable = false)
-    private String account;
+    private String broker;
 
     @Column(length = 15, nullable = false)
     private String ticker;
