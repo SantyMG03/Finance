@@ -1,7 +1,7 @@
 package com.santy.finances.models;
 
 import com.santy.finances.models.enums.Category;
-import com.santy.finances.models.enums.Type;
+import com.santy.finances.models.enums.DiaryType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -32,7 +32,7 @@ public class Diary {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
-    private Type type;
+    private DiaryType diaryType;
 
     @Column(name = "amount", precision = 10, scale = 2)
     private BigDecimal amount;
