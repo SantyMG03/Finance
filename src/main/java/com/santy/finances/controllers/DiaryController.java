@@ -17,7 +17,7 @@ public class DiaryController {
      * POST Request: Send a new income/outcome
      * Upon execution, it will save the record to the Diary table
      * and update the balance of the associated BankAccount.
-     * @param newDiary Diary Data
+     * @param newDiary Diary data to save.
      * @return 201 code and the data saved.
      */
     @PostMapping
