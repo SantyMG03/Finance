@@ -65,6 +65,10 @@ public class TransactionService {
         transactionRepository.deleteById(id);
     }
 
+    /**
+     * This method gets a complete analysis of the portfolio.
+     * @return A list of PortfolioDTO
+     */
     public List<PortfolioDTO> getPortfolioAnalysis() {
         List<Transaction> allTransactions = transactionRepository.findAll();
         Map<String, PortfolioDTO> portfolioMap = new HashMap<>();
