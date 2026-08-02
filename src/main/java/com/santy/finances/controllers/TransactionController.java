@@ -38,6 +38,16 @@ public class TransactionController {
         return ResponseEntity.ok(portfolio);
     }
 
+    /**
+     * GET Request
+     * @return Returns all transactions and OK 200 code.
+     */
+    @GetMapping
+    public ResponseEntity<List<Transaction>> getAllTransactions() {
+        List<Transaction> transactions = transactionService.getAllTransactions();
+        return ResponseEntity.ok(transactions);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Transaction> updateTransaction(
             @PathVariable Long id,
