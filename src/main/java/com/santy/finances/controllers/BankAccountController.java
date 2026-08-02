@@ -16,23 +16,52 @@ public class BankAccountController {
     private final BankAccountService bankAccountService;
 
     /**
-     * GET Request
-     * @return The list of all bank accounts
+     * GET Request: Retrieves all stored bank accounts.
+     *
+     * @return HTTP 200 (OK) and a list of all bank accounts.
      */
     @GetMapping
     public ResponseEntity<List<BankAccount>> getAllAccounts() {
-        List<BankAccount> accounts = bankAccountService.listAllAccounts();
+        List<BankAccount> accounts = bankAccountService.getAllAccounts();
         return ResponseEntity.ok(accounts);
     }
 
     /**
-     * POST Request allows to save a new account into the DB
-     * @param newAccount Account to save.
-     * @return 201 code and the data of the newly saved account.
+     * POST Request: Saves a new bank account into the database.
+     *
+     * @param newAccount The bank account data to save.
+     * @return HTTP 201 (Created) and the saved bank account data.
      */
     @PostMapping
     public ResponseEntity<BankAccount> createNewAccount(@RequestBody BankAccount newAccount) {
         BankAccount savedAccount = bankAccountService.createAccount(newAccount);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedAccount);
+    }
+
+    /**
+     * PUT Request: Updates an existing bank account.
+     *
+     * @param id The ID of the bank account to update.
+     * @param account The new bank account data to overwrite the existing one.
+     * @return HTTP 200 (OK) and the updated bank account data.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<BankAccount> updateAccount(
+            @PathVariable Long id,
+            @RequestBody BankAccount account) {
+        BankAccount updated = bankAccountService.updateAccount(id, account);
+        return ResponseEntity.ok(updated);
+    }
+
+    /**
+     * DELETE Request: Deletes a bank account by its ID.
+     *
+     * @param id The ID of the bank account to be removed.
+     * @return HTTP 204 (No Content) upon successful deletion.
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAccount(@PathVariable Long id) {
+        bankAccountService.deleteAccount(id);
+        return ResponseEntity.noContent().build();
     }
 }
