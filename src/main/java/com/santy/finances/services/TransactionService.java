@@ -17,35 +17,39 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
+
     private final TransactionRepository transactionRepository;
 
     /**
-     * @return A list with all transactions.
+     * Retrieves all transactions from the database.
+     *
+     * @return A list containing all stored transactions.
      */
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
     }
 
     /**
-     * Saves a new transaction into de DB
-     * @param t Transaction to save
-     * @return saved entity
+     * Saves a new transaction into the database.
+     *
+     * @param t The transaction entity to save.
+     * @return The saved transaction entity.
      */
-    public Transaction registerTransaction (Transaction t) {
+    public Transaction registerTransaction(Transaction t) {
         return transactionRepository.save(t);
     }
 
     /**
-     * This method looks for a transaction ID.
-     * If found, it updates the transaction with new data.
-     * Otherwise, throws an error.
-     * @param id ID we are looking for to update
-     * @param updatedData New data to overwrite
-     * @return saved entity
+     * Searches for a transaction by its ID and updates it with new data.
+     *
+     * @param id The ID of the transaction to update.
+     * @param updatedData The new transaction data to overwrite the existing one.
+     * @return The updated and saved transaction entity.
+     * @throws RuntimeException if the transaction ID is not found.
      */
     public Transaction updateTransaction(Long id, Transaction updatedData) {
         return transactionRepository.findById(id).map(existingTransaction -> {
-            // If it exists, then it is updated with the new transaction data
+            // If it exists, update it with the new transaction data
             existingTransaction.setDate(updatedData.getDate());
             existingTransaction.setTicker(updatedData.getTicker());
             existingTransaction.setAsset(updatedData.getAsset());
@@ -62,8 +66,10 @@ public class TransactionService {
     }
 
     /**
-     * This method deletes a transaction by its ID.
-     * @param id ID of the transaction to be removed.
+     * Deletes a transaction from the database by its ID.
+     *
+     * @param id The ID of the transaction to be removed.
+     * @throws RuntimeException if the transaction ID is not found.
      */
     public void deleteTransaction(Long id) {
         if(!transactionRepository.existsById(id)) {
@@ -73,8 +79,9 @@ public class TransactionService {
     }
 
     /**
-     * This method gets a complete analysis of the portfolio.
-     * @return A list of PortfolioDTO
+     * Generates a complete analysis of the portfolio based on all active transactions.
+     *
+     * @return A list of PortfolioDTO representing the calculated portfolio.
      */
     public List<PortfolioDTO> getPortfolioAnalysis() {
         List<Transaction> allTransactions = transactionRepository.findAll();
@@ -111,7 +118,7 @@ public class TransactionService {
             }
         }
 
-        // 2. Calcular valores de mercado, P/L y filtrar posiciones cerradas
+        // 2. Calculate market values, P/L, and filter closed positions
         List<PortfolioDTO> activePositions = portfolioMap.values().stream()
                 .filter(dto -> dto.getTotalShares().compareTo(BigDecimal.ZERO) > 0)
                 .peek(dto -> {
@@ -140,7 +147,7 @@ public class TransactionService {
                 })
                 .collect(Collectors.toList());
 
-        // Portfolio Weight %
+        // Portfolio Weight % calculation
         BigDecimal totalPortfolioValue = activePositions.stream()
                 .map(PortfolioDTO::getMarketValue)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

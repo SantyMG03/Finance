@@ -14,13 +14,14 @@ import java.util.List;
 @RequestMapping("/api/transactions")
 @RequiredArgsConstructor
 public class TransactionController {
+
     private final TransactionService transactionService;
 
-
     /**
-     * POST Reques: Save a new stock or ETF purchase or sale.
-     * @param newTransaction Transaction data to save.
-     * @return 201 code and the data saved.
+     * POST Request: Saves a new stock or ETF purchase/sale transaction.
+     *
+     * @param newTransaction The transaction data to save.
+     * @return HTTP 201 (Created) and the saved transaction data.
      */
     @PostMapping
     public ResponseEntity<Transaction> registerTransaction(@RequestBody Transaction newTransaction) {
@@ -29,8 +30,9 @@ public class TransactionController {
     }
 
     /**
-     * GET Request: Returns the portfolio analysis.
-     * @return 200 code.
+     * GET Request: Returns the complete portfolio analysis.
+     *
+     * @return HTTP 200 (OK) and a list of PortfolioDTOs.
      */
     @GetMapping("/portfolio")
     public ResponseEntity<List<PortfolioDTO>> getPortfolioAnalysis() {
@@ -39,8 +41,9 @@ public class TransactionController {
     }
 
     /**
-     * GET Request
-     * @return Returns all transactions and OK 200 code.
+     * GET Request: Retrieves all stored transactions.
+     *
+     * @return HTTP 200 (OK) and a list of all transactions.
      */
     @GetMapping
     public ResponseEntity<List<Transaction>> getAllTransactions() {
@@ -48,6 +51,13 @@ public class TransactionController {
         return ResponseEntity.ok(transactions);
     }
 
+    /**
+     * PUT Request: Updates an existing transaction.
+     *
+     * @param id The ID of the transaction to update.
+     * @param transaction The new transaction data to overwrite.
+     * @return HTTP 200 (OK) and the updated transaction data.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Transaction> updateTransaction(
             @PathVariable Long id,
@@ -56,9 +66,15 @@ public class TransactionController {
         return ResponseEntity.ok(updated);
     }
 
+    /**
+     * DELETE Request: Deletes a transaction by its ID.
+     *
+     * @param id The ID of the transaction to be removed.
+     * @return HTTP 204 (No Content) upon successful deletion.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
         transactionService.deleteTransaction(id);
-        return ResponseEntity.noContent().build(); // Devuelve un código 204 (Éxito, sin contenido)
+        return ResponseEntity.noContent().build();
     }
 }
