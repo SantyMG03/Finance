@@ -20,6 +20,13 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
 
     /**
+     * @return A list with all transactions.
+     */
+    public List<Transaction> getAllTransactions() {
+        return transactionRepository.findAll();
+    }
+
+    /**
      * Saves a new transaction into de DB
      * @param t Transaction to save
      * @return saved entity
