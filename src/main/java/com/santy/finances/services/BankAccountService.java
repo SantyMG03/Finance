@@ -13,19 +13,50 @@ public class BankAccountService {
     private final BankAccountRepository bankAccountRepository;
 
     /**
-     * @return all accounts in the database
+     * Retrieves all bank accounts from the database.
+     *
+     * @return A list containing all stored bank accounts.
      */
-    public List<BankAccount> listAllAccounts(){
+    public List<BankAccount> getAllAccounts(){
         return bankAccountRepository.findAll();
     }
 
     /**
-     * Method to add a new account to the database
-     * @param newAccount new account to add
-     * @return saved entity
+     * Saves a new bank account into the database.
+     *
+     * @param newAccount The bank account entity to save.
+     * @return The saved bank account entity.
      */
     public BankAccount createAccount(BankAccount newAccount) {
-        //todo: Add validation checks (does exist this account in the db?)
         return bankAccountRepository.save(newAccount);
+    }
+
+    /**
+     * Searches for a bank account by its ID and updates it with new data.
+     *
+     * @param id The ID of the bank account to update.
+     * @param newAccount The new bank account data to overwrite the existing one.
+     * @return The updated and saved bank account entity.
+     * @throws RuntimeException if the bank account ID is not found.
+     */
+    public BankAccount updateAccount(Long id, BankAccount newAccount) {
+        return bankAccountRepository.findById(id).map(existingAccount -> {
+            existingAccount.setName(newAccount.getName());
+            existingAccount.setInitialBalance(newAccount.getInitialBalance());
+            return bankAccountRepository.save(existingAccount);
+        }).orElseThrow(() -> new RuntimeException("Bank Account not found with ID: " + id));
+    }
+
+    /**
+     * Deletes a bank account from the database by its ID.
+     *
+     * @param id The ID of the bank account to be removed.
+     * @throws RuntimeException if the bank account ID is not found.
+     */
+    public void deleteAccount(Long id) {
+        if(!bankAccountRepository.existsById(id)) {
+            throw new RuntimeException("Bank Account not found with ID: " + id);
+        }
+        bankAccountRepository.deleteById(id);
     }
 }
