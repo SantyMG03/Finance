@@ -37,4 +37,18 @@ public class TransactionController {
         List<PortfolioDTO> portfolio = transactionService.getPortfolioAnalysis();
         return ResponseEntity.ok(portfolio);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Transaction> updateTransaction(
+            @PathVariable Long id,
+            @RequestBody Transaction transaction) {
+        Transaction updated = transactionService.updateTransaction(id, transaction);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
+        transactionService.deleteTransaction(id);
+        return ResponseEntity.noContent().build(); // Devuelve un código 204 (Éxito, sin contenido)
+    }
 }
