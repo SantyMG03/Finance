@@ -28,6 +28,32 @@ public class TransactionService {
         return transactionRepository.save(t);
     }
 
+    /**
+     * This method looks for a transaction ID.
+     * If found, it updates the transaction with new data.
+     * Otherwise, throws an error.
+     * @param id ID we are looking for to update
+     * @param updatedData New data to overwrite
+     * @return saved entity
+     */
+    public Transaction updateTransaction(Long id, Transaction updatedData) {
+        return transactionRepository.findById(id).map(existingTransaction -> {
+            // If it exists, then it is updated with the new transaction data
+            existingTransaction.setDate(updatedData.getDate());
+            existingTransaction.setTicker(updatedData.getTicker());
+            existingTransaction.setAsset(updatedData.getAsset());
+            existingTransaction.setIsin(updatedData.getIsin());
+            existingTransaction.setBroker(updatedData.getBroker());
+            existingTransaction.setType(updatedData.getType());
+            existingTransaction.setShares(updatedData.getShares());
+            existingTransaction.setPrice(updatedData.getPrice());
+            existingTransaction.setCommission(updatedData.getCommission());
+            existingTransaction.setTotalPrice(updatedData.getTotalPrice());
+
+            return transactionRepository.save(existingTransaction);
+        }).orElseThrow(() -> new RuntimeException("Transaction not found with ID: " + id));
+    }
+
     public List<PortfolioDTO> getPortfolioAnalysis() {
         List<Transaction> allTransactions = transactionRepository.findAll();
         Map<String, PortfolioDTO> portfolioMap = new HashMap<>();
