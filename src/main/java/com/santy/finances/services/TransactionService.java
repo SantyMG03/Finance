@@ -54,6 +54,17 @@ public class TransactionService {
         }).orElseThrow(() -> new RuntimeException("Transaction not found with ID: " + id));
     }
 
+    /**
+     * This method deletes a transaction by its ID.
+     * @param id ID of the transaction to be removed.
+     */
+    public void deleteTransaction(Long id) {
+        if(!transactionRepository.existsById(id)) {
+            throw new RuntimeException("Transaction not found with ID: " + id);
+        }
+        transactionRepository.deleteById(id);
+    }
+
     public List<PortfolioDTO> getPortfolioAnalysis() {
         List<Transaction> allTransactions = transactionRepository.findAll();
         Map<String, PortfolioDTO> portfolioMap = new HashMap<>();
