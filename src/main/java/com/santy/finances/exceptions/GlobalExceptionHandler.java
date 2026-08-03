@@ -1,5 +1,6 @@
 package com.santy.finances.exceptions;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -58,5 +59,28 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    // Add here any method needed to catch any data validation exception
+    /**
+     * Intercepts database constraint violations, such as attempting to save a duplicate unique value.
+     *
+     * @param ex The intercepted DataIntegrityViolationException.
+     * @param request The current web request, used to extract the endpoint path.
+     * @return HTTP 409 (Conflict) along with the structured ErrorResponse object.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(
+            DataIntegrityViolationException ex,
+            WebRequest request) {
+
+        String path = request.getDescription(false).replace("uri=", "");
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                "Data constraint violation: Ensure unique fields are not duplicated.",
+                path
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
 }
