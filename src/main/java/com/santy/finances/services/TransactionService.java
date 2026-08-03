@@ -1,6 +1,7 @@
 package com.santy.finances.services;
 
 import com.santy.finances.DTOs.PortfolioDTO;
+import com.santy.finances.exceptions.ResourceNotFoundException;
 import com.santy.finances.models.Transaction;
 import com.santy.finances.models.enums.TransactionType;
 import com.santy.finances.repositories.TransactionRepository;
@@ -48,7 +49,7 @@ public class TransactionService {
      * @param id The ID of the transaction to update.
      * @param updatedData The new transaction data to overwrite the existing one.
      * @return The updated and saved transaction entity.
-     * @throws RuntimeException if the transaction ID is not found.
+     * @throws ResourceNotFoundException if the transaction ID is not found.
      */
     @Transactional
     public Transaction updateTransaction(Long id, Transaction updatedData) {
@@ -66,19 +67,19 @@ public class TransactionService {
             existingTransaction.setTotalPrice(updatedData.getTotalPrice());
 
             return transactionRepository.save(existingTransaction);
-        }).orElseThrow(() -> new RuntimeException("Transaction not found with ID: " + id));
+        }).orElseThrow(() -> new ResourceNotFoundException("Transaction not found with ID: " + id));
     }
 
     /**
      * Deletes a transaction from the database by its ID.
      *
      * @param id The ID of the transaction to be removed.
-     * @throws RuntimeException if the transaction ID is not found.
+     * @throws ResourceNotFoundException if the transaction ID is not found.
      */
     @Transactional
     public void deleteTransaction(Long id) {
         if(!transactionRepository.existsById(id)) {
-            throw new RuntimeException("Transaction not found with ID: " + id);
+            throw new ResourceNotFoundException("Transaction not found with ID: " + id);
         }
         transactionRepository.deleteById(id);
     }

@@ -1,5 +1,6 @@
 package com.santy.finances.services;
 
+import com.santy.finances.exceptions.ResourceNotFoundException;
 import com.santy.finances.models.BankAccount;
 import com.santy.finances.repositories.BankAccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,7 @@ public class BankAccountService {
      * @param id The ID of the bank account to update.
      * @param newAccount The new bank account data to overwrite the existing one.
      * @return The updated and saved bank account entity.
-     * @throws RuntimeException if the bank account ID is not found.
+     * @throws ResourceNotFoundException if the bank account ID is not found.
      */
     @Transactional
     public BankAccount updateAccount(Long id, BankAccount newAccount) {
@@ -48,19 +49,19 @@ public class BankAccountService {
             existingAccount.setName(newAccount.getName());
             existingAccount.setInitialBalance(newAccount.getInitialBalance());
             return bankAccountRepository.save(existingAccount);
-        }).orElseThrow(() -> new RuntimeException("Bank Account not found with ID: " + id));
+        }).orElseThrow(() -> new ResourceNotFoundException("Bank Account not found with ID: " + id));
     }
 
     /**
      * Deletes a bank account from the database by its ID.
      *
      * @param id The ID of the bank account to be removed.
-     * @throws RuntimeException if the bank account ID is not found.
+     * @throws ResourceNotFoundException if the bank account ID is not found.
      */
     @Transactional
     public void deleteAccount(Long id) {
         if(!bankAccountRepository.existsById(id)) {
-            throw new RuntimeException("Bank Account not found with ID: " + id);
+            throw new ResourceNotFoundException("Bank Account not found with ID: " + id);
         }
         bankAccountRepository.deleteById(id);
     }

@@ -1,5 +1,6 @@
 package com.santy.finances.services;
 
+import com.santy.finances.exceptions.ResourceNotFoundException;
 import com.santy.finances.models.Category;
 import com.santy.finances.repositories.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,26 +42,26 @@ public class CategoryService {
      * @param id The ID of the category to update.
      * @param updatedData The new category data to overwrite the existing one.
      * @return The updated and saved category entity.
-     * @throws RuntimeException if the category ID is not found.
+     * @throws ResourceNotFoundException if the category ID is not found.
      */
     @Transactional
     public Category updateCategory(Long id, Category updatedData) {
         return categoryRepository.findById(id).map(existingCategory -> {
             existingCategory.setName(updatedData.getName());
             return categoryRepository.save(existingCategory);
-        }).orElseThrow(() -> new RuntimeException("Category not found with ID: " + id));
+        }).orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + id));
     }
 
     /**
      * Deletes a category from the database by its ID.
      *
      * @param id The ID of the category to be removed.
-     * @throws RuntimeException if the category ID is not found.
+     * @throws ResourceNotFoundException if the category ID is not found.
      */
     @Transactional
     public void deleteCategory(Long id) {
         if (!categoryRepository.existsById(id)) {
-            throw new RuntimeException("Category not found with ID: " + id);
+            throw new ResourceNotFoundException("Category not found with ID: " + id);
         }
         categoryRepository.deleteById(id);
     }
