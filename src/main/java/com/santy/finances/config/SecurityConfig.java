@@ -17,7 +17,14 @@ public class SecurityConfig {
                 // This is just for testing myself
                 // TODO: Implement JWToken for more advance user administration
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/swagger-ui.html",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/webjars/**"
+                ).permitAll()
+                .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();
