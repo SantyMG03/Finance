@@ -2,6 +2,7 @@ package com.santy.finances.controllers;
 
 import com.santy.finances.models.Diary;
 import com.santy.finances.services.DiaryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ public class DiaryController {
      * @return HTTP 201 (Created) and the saved diary data.
      */
     @PostMapping
-    public ResponseEntity<Diary> registerDiaryEntry(@RequestBody Diary newDiary) {
+    public ResponseEntity<Diary> registerDiaryEntry(@Valid @RequestBody Diary newDiary) {
         Diary savedDiary = diaryService.registerNewDiary(newDiary);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDiary);
     }
@@ -49,7 +50,7 @@ public class DiaryController {
     @PutMapping("/{id}")
     public ResponseEntity<Diary> updateDiaryEntry(
             @PathVariable Long id,
-            @RequestBody Diary diary) {
+            @Valid @RequestBody Diary diary) {
         Diary updated = diaryService.updateDiary(id, diary);
         return ResponseEntity.ok(updated);
     }

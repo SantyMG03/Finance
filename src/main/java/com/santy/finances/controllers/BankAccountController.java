@@ -2,6 +2,7 @@ package com.santy.finances.controllers;
 
 import com.santy.finances.models.BankAccount;
 import com.santy.finances.services.BankAccountService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,7 @@ public class BankAccountController {
      * @return HTTP 201 (Created) and the saved bank account data.
      */
     @PostMapping
-    public ResponseEntity<BankAccount> createNewAccount(@RequestBody BankAccount newAccount) {
+    public ResponseEntity<BankAccount> createNewAccount(@Valid @RequestBody BankAccount newAccount) {
         BankAccount savedAccount = bankAccountService.createAccount(newAccount);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedAccount);
     }
@@ -48,7 +49,7 @@ public class BankAccountController {
     @PutMapping("/{id}")
     public ResponseEntity<BankAccount> updateAccount(
             @PathVariable Long id,
-            @RequestBody BankAccount account) {
+            @Valid @RequestBody BankAccount account) {
         BankAccount updated = bankAccountService.updateAccount(id, account);
         return ResponseEntity.ok(updated);
     }

@@ -3,6 +3,7 @@ package com.santy.finances.controllers;
 import com.santy.finances.DTOs.PortfolioDTO;
 import com.santy.finances.models.Transaction;
 import com.santy.finances.services.TransactionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class TransactionController {
      * @return HTTP 201 (Created) and the saved transaction data.
      */
     @PostMapping
-    public ResponseEntity<Transaction> registerTransaction(@RequestBody Transaction newTransaction) {
+    public ResponseEntity<Transaction> registerTransaction(@Valid @RequestBody Transaction newTransaction) {
         Transaction savedTransaction = transactionService.registerTransaction(newTransaction);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedTransaction);
     }
@@ -61,7 +62,7 @@ public class TransactionController {
     @PutMapping("/{id}")
     public ResponseEntity<Transaction> updateTransaction(
             @PathVariable Long id,
-            @RequestBody Transaction transaction) {
+            @Valid @RequestBody Transaction transaction) {
         Transaction updated = transactionService.updateTransaction(id, transaction);
         return ResponseEntity.ok(updated);
     }

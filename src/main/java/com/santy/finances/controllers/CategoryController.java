@@ -2,6 +2,7 @@ package com.santy.finances.controllers;
 
 import com.santy.finances.models.Category;
 import com.santy.finances.services.CategoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ public class CategoryController {
      * @return HTTP 201 (Created) and the saved category data.
      */
     @PostMapping
-    public ResponseEntity<Category> registerCategory(@RequestBody Category newCategory) {
+    public ResponseEntity<Category> registerCategory(@Valid @RequestBody Category newCategory) {
         Category savedCategory = categoryService.registerCategory(newCategory);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
     }
@@ -49,7 +50,7 @@ public class CategoryController {
     @PutMapping("/{id}")
     public ResponseEntity<Category> updateCategory(
             @PathVariable Long id,
-            @RequestBody Category category) {
+            @Valid @RequestBody Category category) {
         Category updated = categoryService.updateCategory(id, category);
         return ResponseEntity.ok(updated);
     }
