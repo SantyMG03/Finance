@@ -1,6 +1,7 @@
 package com.santy.finances.services;
 
 import com.santy.finances.DTOs.PortfolioDTO;
+import com.santy.finances.clients.FinnhubClient;
 import com.santy.finances.exceptions.ResourceNotFoundException;
 import com.santy.finances.models.Transaction;
 import com.santy.finances.models.enums.TransactionType;
@@ -21,6 +22,8 @@ import java.util.stream.Collectors;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
+
+    private final FinnhubClient finnhubClient;
 
     /**
      * Retrieves all transactions from the database.
@@ -86,6 +89,7 @@ public class TransactionService {
 
     /**
      * Generates a complete analysis of the portfolio based on all active transactions.
+     * Obtains real-time market data from Finnhub API.
      *
      * @return A list of PortfolioDTO representing the calculated portfolio.
      */
@@ -106,44 +110,40 @@ public class TransactionService {
 
             if (t.getType() == TransactionType.BUY) {
                 BigDecimal currentCost = dto.getTotalShares().multiply(dto.getMeanPrice());
-
-                // totalPrice includes price + commission
                 BigDecimal newCost = t.getTotalPrice();
-
                 BigDecimal newTotalShares = dto.getTotalShares().add(t.getShares());
                 dto.setTotalShares(newTotalShares);
 
-                // Recalculate the weighted average price
                 if (newTotalShares.compareTo(BigDecimal.ZERO) > 0) {
                     BigDecimal newMeanPrice = currentCost.add(newCost)
                             .divide(newTotalShares, 4, RoundingMode.HALF_UP);
                     dto.setMeanPrice(newMeanPrice);
                 }
             } else if (t.getType() == TransactionType.SELL) {
-                // Sales reduce the number of titles but do not alter the average base price.
                 dto.setTotalShares(dto.getTotalShares().subtract(t.getShares()));
             }
         }
 
-        // 2. Calculate market values, P/L, and filter closed positions
         List<PortfolioDTO> activePositions = portfolioMap.values().stream()
                 .filter(dto -> dto.getTotalShares().compareTo(BigDecimal.ZERO) > 0)
                 .peek(dto -> {
-                    // TODO: Connect API Yahoo Finance/Google Finance to get real price.
-                    // MOCK: We simulated a 5% increase over the average price in order to test it.
-                    BigDecimal currentPriceMock = dto.getMeanPrice().multiply(new BigDecimal("1.05"));
-                    dto.setCurrentPrice(currentPriceMock.setScale(2, RoundingMode.HALF_UP));
+                    // Request to external API to get current price
+                    BigDecimal realPrice = finnhubClient.getCurrentPrice(dto.getTicker());
 
-                    // Market Value = Total Shares * Current Price
+                    // If anything goes wrong, it uses mean price so as not to disrupt the calculations.
+                    if (realPrice == null || realPrice.compareTo(BigDecimal.ZERO) == 0) {
+                        realPrice = dto.getMeanPrice();
+                    }
+
+                    dto.setCurrentPrice(realPrice.setScale(2, RoundingMode.HALF_UP));
+
                     BigDecimal marketValue = dto.getTotalShares().multiply(dto.getCurrentPrice());
                     dto.setMarketValue(marketValue.setScale(2, RoundingMode.HALF_UP));
 
-                    // Profit/Loss (€) = Market Value - Total Invested
                     BigDecimal totalInvested = dto.getTotalShares().multiply(dto.getMeanPrice());
                     BigDecimal profitLossEuros = marketValue.subtract(totalInvested);
                     dto.setProfitLossEuros(profitLossEuros.setScale(2, RoundingMode.HALF_UP));
 
-                    // Profit/Loss (%) = ((Current Price / Mean Price) - 1) * 100
                     if (dto.getMeanPrice().compareTo(BigDecimal.ZERO) > 0) {
                         BigDecimal profitLossPercent = dto.getCurrentPrice()
                                 .divide(dto.getMeanPrice(), 4, RoundingMode.HALF_UP)
@@ -154,7 +154,6 @@ public class TransactionService {
                 })
                 .collect(Collectors.toList());
 
-        // Portfolio Weight % calculation
         BigDecimal totalPortfolioValue = activePositions.stream()
                 .map(PortfolioDTO::getMarketValue)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
