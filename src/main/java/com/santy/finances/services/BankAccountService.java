@@ -4,6 +4,7 @@ import com.santy.finances.models.BankAccount;
 import com.santy.finances.repositories.BankAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class BankAccountService {
      *
      * @return A list containing all stored bank accounts.
      */
+    @Transactional(readOnly = true)
     public List<BankAccount> getAllAccounts(){
         return bankAccountRepository.findAll();
     }
@@ -27,6 +29,7 @@ public class BankAccountService {
      * @param newAccount The bank account entity to save.
      * @return The saved bank account entity.
      */
+    @Transactional
     public BankAccount createAccount(BankAccount newAccount) {
         return bankAccountRepository.save(newAccount);
     }
@@ -39,6 +42,7 @@ public class BankAccountService {
      * @return The updated and saved bank account entity.
      * @throws RuntimeException if the bank account ID is not found.
      */
+    @Transactional
     public BankAccount updateAccount(Long id, BankAccount newAccount) {
         return bankAccountRepository.findById(id).map(existingAccount -> {
             existingAccount.setName(newAccount.getName());
@@ -53,6 +57,7 @@ public class BankAccountService {
      * @param id The ID of the bank account to be removed.
      * @throws RuntimeException if the bank account ID is not found.
      */
+    @Transactional
     public void deleteAccount(Long id) {
         if(!bankAccountRepository.existsById(id)) {
             throw new RuntimeException("Bank Account not found with ID: " + id);

@@ -6,6 +6,7 @@ import com.santy.finances.models.enums.TransactionType;
 import com.santy.finances.repositories.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -25,6 +26,7 @@ public class TransactionService {
      *
      * @return A list containing all stored transactions.
      */
+    @Transactional(readOnly = true)
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
     }
@@ -35,6 +37,7 @@ public class TransactionService {
      * @param t The transaction entity to save.
      * @return The saved transaction entity.
      */
+    @Transactional
     public Transaction registerTransaction(Transaction t) {
         return transactionRepository.save(t);
     }
@@ -47,6 +50,7 @@ public class TransactionService {
      * @return The updated and saved transaction entity.
      * @throws RuntimeException if the transaction ID is not found.
      */
+    @Transactional
     public Transaction updateTransaction(Long id, Transaction updatedData) {
         return transactionRepository.findById(id).map(existingTransaction -> {
             // If it exists, update it with the new transaction data
@@ -71,6 +75,7 @@ public class TransactionService {
      * @param id The ID of the transaction to be removed.
      * @throws RuntimeException if the transaction ID is not found.
      */
+    @Transactional
     public void deleteTransaction(Long id) {
         if(!transactionRepository.existsById(id)) {
             throw new RuntimeException("Transaction not found with ID: " + id);
@@ -83,6 +88,7 @@ public class TransactionService {
      *
      * @return A list of PortfolioDTO representing the calculated portfolio.
      */
+    @Transactional(readOnly = true)
     public List<PortfolioDTO> getPortfolioAnalysis() {
         List<Transaction> allTransactions = transactionRepository.findAll();
         Map<String, PortfolioDTO> portfolioMap = new HashMap<>();

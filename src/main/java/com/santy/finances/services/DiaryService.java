@@ -26,6 +26,7 @@ public class DiaryService {
      *
      * @return A list containing all stored diary entries.
      */
+    @Transactional(readOnly = true)
     public List<Diary> getAllDiaries() {
         return diaryRepository.findAll();
     }
