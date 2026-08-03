@@ -65,4 +65,8 @@ public class Transaction {
     @Positive
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal totalPrice;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }
