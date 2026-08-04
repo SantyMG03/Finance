@@ -31,10 +31,10 @@ public class SecurityConfig {
                             "/swagger-ui/**",
                             "/v3/api-docs/**",
                             "/webjars/**",
-                            "/api/auth/**"  // Allows anyone to register or log in.
+                            "/api/auth/**",  // Allows anyone to register or log in.
+                            "/error"
                     ).permitAll()
-                .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults());
+                .anyRequest().authenticated());
 
         return http.build();
     }
