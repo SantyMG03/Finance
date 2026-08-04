@@ -4,6 +4,7 @@ import com.santy.finances.DTOs.PortfolioDTO;
 import com.santy.finances.clients.FinnhubClient;
 import com.santy.finances.exceptions.ResourceNotFoundException;
 import com.santy.finances.models.Transaction;
+import com.santy.finances.models.User;
 import com.santy.finances.models.enums.TransactionType;
 import com.santy.finances.repositories.TransactionRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,21 @@ public class TransactionService {
     @Transactional(readOnly = true)
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
+    }
+
+    /**
+     * Obtiene solo las transacciones que pertenecen a un usuario concreto.
+     * Retrieves all transactions from a user
+     */
+    /**
+     * Retrieves all transactions from a specified user.
+     *
+     * @param user The user for which to retrieve transactions.
+     * @return A list containing all transactions from the specified user.
+     */
+    @Transactional(readOnly = true)
+    public List<Transaction> getUserTransactions(User user) {
+        return transactionRepository.findByUser(user);
     }
 
     /**
