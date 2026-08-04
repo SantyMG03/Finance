@@ -2,12 +2,15 @@ package com.santy.finances.controllers;
 
 import com.santy.finances.DTOs.PortfolioDTO;
 import com.santy.finances.models.Transaction;
+import com.santy.finances.models.User;
 import com.santy.finances.services.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -26,7 +29,13 @@ public class TransactionController {
      */
     @PostMapping
     public ResponseEntity<Transaction> registerTransaction(@Valid @RequestBody Transaction newTransaction) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        newTransaction.setUser(currentUser);
+
         Transaction savedTransaction = transactionService.registerTransaction(newTransaction);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(savedTransaction);
     }
 
@@ -42,14 +51,20 @@ public class TransactionController {
     }
 
     /**
-     * GET Request: Retrieves all stored transactions.
+     * GET Request: Retrieves all transactions from an authenticated user.
      *
      * @return HTTP 200 (OK) and a list of all transactions.
      */
     @GetMapping
-    public ResponseEntity<List<Transaction>> getAllTransactions() {
-        List<Transaction> transactions = transactionService.getAllTransactions();
-        return ResponseEntity.ok(transactions);
+    public ResponseEntity<List<Transaction>> getMyTransactions() {
+
+        // Get the current user from the authentication
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        List<Transaction> userTransactions = transactionService.getUserTransactions(currentUser);
+
+        return ResponseEntity.ok(userTransactions);
     }
 
     /**

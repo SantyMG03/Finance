@@ -1,5 +1,6 @@
 package com.santy.finances.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.santy.finances.models.enums.TransactionType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -65,4 +66,9 @@ public class Transaction {
     @Positive
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal totalPrice;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
+    private User user;
 }
