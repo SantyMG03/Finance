@@ -1,5 +1,7 @@
 package com.santy.finances.services;
 
+import com.santy.finances.DTOs.AuthResponse;
+import com.santy.finances.DTOs.LoginRequest;
 import com.santy.finances.DTOs.RegisterRequest;
 import com.santy.finances.models.User;
 import com.santy.finances.repositories.UserRepository;
@@ -14,6 +16,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JWTService jwtService;
 
     @Transactional
     public User register(RegisterRequest request) {
@@ -36,5 +39,18 @@ public class AuthService {
 
         // Saves in database
         return userRepository.save(user);
+    }
+
+    public AuthResponse login (LoginRequest request) {
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Incorrect password");
+        }
+
+        String token = jwtService.generateToken(user);
+
+        return new AuthResponse(token);
     }
 }
