@@ -37,10 +37,6 @@ public class TransactionService {
     }
 
     /**
-     * Obtiene solo las transacciones que pertenecen a un usuario concreto.
-     * Retrieves all transactions from a user
-     */
-    /**
      * Retrieves all transactions from a specified user.
      *
      * @param user The user for which to retrieve transactions.
