@@ -4,6 +4,7 @@ import com.santy.finances.DTOs.AuthResponse;
 import com.santy.finances.DTOs.LoginRequest;
 import com.santy.finances.DTOs.RegisterRequest;
 import com.santy.finances.services.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class AuthController {
      *          400 BAD REQUEST if the email is already in use.
      */
     @PostMapping("/register")
-    public ResponseEntity<Map<String, String>> register (@RequestBody RegisterRequest request) {
+    public ResponseEntity<Map<String, String>> register (@Valid @RequestBody RegisterRequest request) {
         try {
             authService.register(request);
 
@@ -53,7 +54,7 @@ public class AuthController {
      *          401 UNAUTHORIZED if password or username do not exist.
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         try {
             AuthResponse response = authService.login(request);
             return ResponseEntity.ok(response);
