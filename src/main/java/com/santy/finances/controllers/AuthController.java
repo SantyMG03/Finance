@@ -29,21 +29,12 @@ public class AuthController {
      */
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register (@Valid @RequestBody RegisterRequest request) {
-        try {
-            authService.register(request);
+        authService.register(request);
 
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "User successfully registered");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "User successfully registered");
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
-        } catch (RuntimeException e) {
-            // Catch errors like "Email registered" thrown by the service
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
@@ -54,15 +45,8 @@ public class AuthController {
      *          401 UNAUTHORIZED if password or username do not exist.
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
-        try {
-            AuthResponse response = authService.login(request);
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            // Si falla la contraseña o el usuario no existe, devolvemos un 401 Unauthorized
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-        }
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 }

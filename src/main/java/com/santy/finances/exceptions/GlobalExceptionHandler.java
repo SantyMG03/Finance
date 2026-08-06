@@ -40,6 +40,31 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Intercepts invalid credentials (e.g., wrong username or password) during authentication.
+     *
+     * @param ex The intercepted InvalidCredentialsException containing the error details.
+     * @param request The current web request, used to extract the endpoint path.
+     * @return HTTP 401 (Unauthorized) along with the structured ErrorResponse object.
+     */
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(
+            InvalidCredentialsException ex,
+            WebRequest request) {
+
+        String path = request.getDescription(false).replace("uri=", "");
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                ex.getMessage(),
+                path
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    /**
      * Intercepts ResourceNotFoundException when a requested entity ID is not found in the database.
      *
      * @param ex The intercepted exception containing the missing resource details.

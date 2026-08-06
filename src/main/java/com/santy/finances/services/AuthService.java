@@ -3,6 +3,7 @@ package com.santy.finances.services;
 import com.santy.finances.DTOs.AuthResponse;
 import com.santy.finances.DTOs.LoginRequest;
 import com.santy.finances.DTOs.RegisterRequest;
+import com.santy.finances.exceptions.InvalidCredentialsException;
 import com.santy.finances.models.User;
 import com.santy.finances.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,10 +44,10 @@ public class AuthService {
 
     public AuthResponse login (LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Incorrect password");
+            throw new InvalidCredentialsException("Incorrect password");
         }
 
         String token = jwtService.generateToken(user);
