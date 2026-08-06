@@ -1,11 +1,14 @@
 package com.santy.finances.controllers;
 
 import com.santy.finances.models.Category;
+import com.santy.finances.models.User;
 import com.santy.finances.services.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,30 +21,36 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     /**
-     * GET Request: Retrieves all stored categories.
+     * GET Request: Retrieves all categories from the authenticated user.
      *
-     * @return HTTP 200 (OK) and a list of all categories.
+     * @return HTTP 200 (OK) and a list of all the user's categories.
      */
     @GetMapping
     public ResponseEntity<List<Category>> getAllCategories() {
-        List<Category> categories = categoryService.getAllCategories();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        List<Category> categories = categoryService.getUserCategories(currentUser);
         return ResponseEntity.ok(categories);
     }
 
     /**
-     * POST Request: Saves a new category into the database.
+     * POST Request: Saves a new category into the database for the authenticated user.
      *
      * @param newCategory The category data to save.
      * @return HTTP 201 (Created) and the saved category data.
      */
     @PostMapping
     public ResponseEntity<Category> registerCategory(@Valid @RequestBody Category newCategory) {
-        Category savedCategory = categoryService.registerCategory(newCategory);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Category savedCategory = categoryService.registerCategory(newCategory, currentUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
     }
 
     /**
-     * PUT Request: Updates an existing category.
+     * PUT Request: Updates an existing category owned by the authenticated user.
      *
      * @param id The ID of the category to update.
      * @param category The new category data to overwrite the existing one.
@@ -51,19 +60,25 @@ public class CategoryController {
     public ResponseEntity<Category> updateCategory(
             @PathVariable Long id,
             @Valid @RequestBody Category category) {
-        Category updated = categoryService.updateCategory(id, category);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Category updated = categoryService.updateCategory(id, category, currentUser);
         return ResponseEntity.ok(updated);
     }
 
     /**
-     * DELETE Request: Deletes a category by its ID.
+     * DELETE Request: Deletes a category owned by the authenticated user, by its ID.
      *
      * @param id The ID of the category to be removed.
      * @return HTTP 204 (No Content) upon successful deletion.
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-        categoryService.deleteCategory(id);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        categoryService.deleteCategory(id, currentUser);
         return ResponseEntity.noContent().build();
     }
 }

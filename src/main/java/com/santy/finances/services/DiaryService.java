@@ -4,6 +4,7 @@ import com.santy.finances.exceptions.ResourceNotFoundException;
 import com.santy.finances.models.BankAccount;
 import com.santy.finances.models.Category;
 import com.santy.finances.models.Diary;
+import com.santy.finances.models.User;
 import com.santy.finances.models.enums.DiaryType;
 import com.santy.finances.repositories.BankAccountRepository;
 import com.santy.finances.repositories.CategoryRepository;
@@ -23,30 +24,32 @@ public class DiaryService {
     private final CategoryRepository categoryRepository;
 
     /**
-     * Retrieves all diary entries from the database.
+     * Retrieves all diary entries belonging to the given user.
      *
-     * @return A list containing all stored diary entries.
+     * @param user The user whose entries should be retrieved.
+     * @return A list containing all the user's stored diary entries.
      */
     @Transactional(readOnly = true)
-    public List<Diary> getAllDiaries() {
-        return diaryRepository.findAll();
+    public List<Diary> getUserDiaries(User user) {
+        return diaryRepository.findByUser(user);
     }
 
     /**
-     * Saves a new diary entry and automatically updates the corresponding bank account balance.
+     * Saves a new diary entry for the given user and automatically updates the corresponding bank account balance.
      *
      * @param newDiary The diary entry data to save.
+     * @param user The user that owns the entry.
      * @return The saved diary entity.
-     * @throws ResourceNotFoundException if the bank account or category is not found.
+     * @throws ResourceNotFoundException if the bank account or category is not found for the user.
      */
     @Transactional
-    public Diary registerNewDiary(Diary newDiary) {
+    public Diary registerNewDiary(Diary newDiary, User user) {
         BankAccount account = bankAccountRepository
-                .findById(newDiary.getBankAccount().getId())
+                .findByIdAndUser(newDiary.getBankAccount().getId(), user)
                 .orElseThrow(() -> new ResourceNotFoundException("Error: Bank account not found"));
 
         Category category = categoryRepository
-                .findById(newDiary.getCategory().getId())
+                .findByIdAndUser(newDiary.getCategory().getId(), user)
                 .orElseThrow(() -> new ResourceNotFoundException("Error: Category not found"));
 
         // Check input type and update balance
@@ -59,27 +62,29 @@ public class DiaryService {
         bankAccountRepository.save(account);
         newDiary.setBankAccount(account);
         newDiary.setCategory(category);
+        newDiary.setUser(user);
 
         return diaryRepository.save(newDiary);
     }
 
     /**
-     * Searches for a diary entry by its ID, updates it, and recalculates the bank account balance.
+     * Searches for a diary entry owned by the user, by its ID, updates it, and recalculates the bank account balance.
      *
      * @param id The ID of the entry to update.
      * @param updatedData The new entry data to overwrite the existing one.
+     * @param user The user that owns the entry.
      * @return The updated and saved diary entity.
-     * @throws ResourceNotFoundException if the entry diary ID is not found.
+     * @throws ResourceNotFoundException if the entry diary ID is not found for the user.
      */
     @Transactional
-    public Diary updateDiary(Long id, Diary updatedData) {
-        Diary existingDiary = diaryRepository.findById(id)
+    public Diary updateDiary(Long id, Diary updatedData, User user) {
+        Diary existingDiary = diaryRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Diary entry not found with ID: " + id));
 
-        BankAccount account = bankAccountRepository.findById(existingDiary.getBankAccount().getId())
+        BankAccount account = bankAccountRepository.findByIdAndUser(existingDiary.getBankAccount().getId(), user)
                 .orElseThrow(() -> new ResourceNotFoundException("Bank Account not found"));
 
-        Category newCategory = categoryRepository.findById(updatedData.getCategory().getId())
+        Category newCategory = categoryRepository.findByIdAndUser(updatedData.getCategory().getId(), user)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         // Revert the old amount from the bank account
@@ -109,14 +114,15 @@ public class DiaryService {
     }
 
     /**
-     * Deletes a diary entry by its ID and reverts its effect on the bank account balance.
+     * Deletes a diary entry owned by the user, by its ID, and reverts its effect on the bank account balance.
      *
      * @param id The ID of the entry to be removed.
-     * @throws ResourceNotFoundException if the diary entry ID is not found.
+     * @param user The user that owns the entry.
+     * @throws ResourceNotFoundException if the diary entry ID is not found for the user.
      */
     @Transactional
-    public void deleteDiary(Long id) {
-        Diary existingDiary = diaryRepository.findById(id)
+    public void deleteDiary(Long id, User user) {
+        Diary existingDiary = diaryRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Diary entry not found with ID: " + id));
 
         BankAccount account = existingDiary.getBankAccount();
