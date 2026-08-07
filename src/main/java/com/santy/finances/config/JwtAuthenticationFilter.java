@@ -41,7 +41,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Extract token (removing "Bearer ")
         final String jwt = authHeader.substring(7);
-        final String username = jwtService.extractUsername(jwt);
+        final String username;
+
+        try {
+            username = jwtService.extractUsername(jwt);
+        } catch (io.jsonwebtoken.JwtException e) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // If the token has a user, and it has not been authenticated...
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
