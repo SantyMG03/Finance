@@ -3,6 +3,7 @@ package com.santy.finances.controllers;
 import com.santy.finances.DTOs.AuthResponse;
 import com.santy.finances.DTOs.LoginRequest;
 import com.santy.finances.DTOs.RegisterRequest;
+import com.santy.finances.models.User;
 import com.santy.finances.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +30,10 @@ public class AuthController {
      */
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register (@Valid @RequestBody RegisterRequest request) {
-        authService.register(request);
+        User u = authService.register(request);
 
         Map<String, String> response = new HashMap<>();
-        response.put("message", "User successfully registered");
+        response.put("message", "User " + u.getUsername() + " successfully registered");
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

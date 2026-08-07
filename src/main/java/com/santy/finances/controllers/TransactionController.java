@@ -46,7 +46,10 @@ public class TransactionController {
      */
     @GetMapping("/portfolio")
     public ResponseEntity<List<PortfolioDTO>> getPortfolioAnalysis() {
-        List<PortfolioDTO> portfolio = transactionService.getPortfolioAnalysis();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        List<PortfolioDTO> portfolio = transactionService.getPortfolioAnalysis(currentUser);
         return ResponseEntity.ok(portfolio);
     }
 

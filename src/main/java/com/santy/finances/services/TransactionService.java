@@ -100,14 +100,15 @@ public class TransactionService {
     }
 
     /**
-     * Generates a complete analysis of the portfolio based on all active transactions.
+     * Generates a complete analysis of the portfolio based on all active transactions of the given user.
      * Obtains real-time market data from Finnhub API.
      *
+     * @param user The user whose portfolio should be analyzed.
      * @return A list of PortfolioDTO representing the calculated portfolio.
      */
     @Transactional(readOnly = true)
-    public List<PortfolioDTO> getPortfolioAnalysis() {
-        List<Transaction> allTransactions = transactionRepository.findAll();
+    public List<PortfolioDTO> getPortfolioAnalysis(User user) {
+        List<Transaction> allTransactions = transactionRepository.findByUser(user);
         Map<String, PortfolioDTO> portfolioMap = new HashMap<>();
 
         for (Transaction t: allTransactions) {
